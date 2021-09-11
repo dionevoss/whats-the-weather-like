@@ -10,6 +10,7 @@ import sunny from '../../public/sunny.png'
 import cloud from '../../public/cloud.png'
 import rain from '../../public/rain.png'
 import { sunnyWeather, rainyWeather, cloudyWeather, tokyoData } from '../../helpers/constants'
+import { getWeather } from '../../services/weather'
 
 const DATA = {
   coord: { lon: -52.6756, lat: -31.395 },
@@ -37,19 +38,20 @@ const DATA = {
   cod: 200
 }
 
-const WeatherCard = () => {
+const WeatherCard = ({ coords, isLoadingPermissions }) => {
   const [weatherData, setWeatherData] = useState(null)
   const [weatherStyles, setWeatherStyles] = useState(null)
   const [isLoading, setIsLoading] = useState(true)
 
   useEffect(() => {
-    getWeather()
-  }, [])
+    !isLoadingPermissions && handleGetWeather()
+  }, [isLoadingPermissions])
 
-  const getWeather = async () => {
+  const handleGetWeather = async () => {
     try {
-      const data = await formmatedData(DATA)
       setIsLoading(true)
+      const response = await getWeather(coords)
+      const data = await formmatedData(response.data)
       await handleWeatherStyles(data.weather)
       setWeatherData(data)
     } catch (error) {
